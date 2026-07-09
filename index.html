@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel de Licenciados & Clientes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-title">
+        <span class="header-icon">🗺️</span>
+        <div>
+          <h1>Painel de Distribuição</h1>
+          <p class="header-sub">Licenciados &amp; Clientes por Estado</p>
+        </div>
+      </div>
+      <nav class="nav-tabs">
+        <button class="nav-tab active" data-tab="licensees">Licenciados</button>
+        <button class="nav-tab" data-tab="clients">Clientes BR</button>
+        <button class="nav-tab" data-tab="crossmap">Atuação Cruzada</button>
+        <button class="nav-tab" data-tab="usa">🇺🇸 Clientes EUA</button>
+        <button class="nav-tab" data-tab="usalic">🇺🇸 Licenciados EUA</button>
+      </nav>
+      
+    </div>
+  </header>
+
+  <div class="page-body">
+
+    <!-- TELA 1: LICENCIADOS -->
+    <div class="tab-content active" id="tab-licensees">
+      <div class="empty-state" id="emptyLicensees">
+        <h2>Carregue sua planilha para começar</h2>
+        <p>Selecione o arquivo <strong>.xlsx</strong> com as abas <em>licenciados</em> e <em>clientes</em> e <em>Internacional</em></p>
+        <label class="upload-btn">
+        <span id="uploadText">Carregar Planilha</span>
+        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" hidden />
+      </label>
+      </div>
+      <div id="dashLicensees" style="display:none">
+        <div class="kpi-row" id="kpiLicensees"></div>
+        <div class="filter-bar">
+          <span class="filter-label">Licença:</span>
+          <div class="filter-pills" id="pillsLicensees"></div>
+          <span class="filter-label" style="margin-left:16px">Status:</span>
+          <div class="filter-pills" id="pillsStatusL"></div>
+        </div>
+        <div class="map-section">
+          <div class="map-wrapper">
+            <h2 class="section-title">Licenciados por Estado <span class="tip">— clique no estado para detalhar</span></h2>
+            <div class="brazil-map" id="mapLicensees"></div>
+            <div class="map-legend" id="legendLicensees"></div>
+          </div>
+          <div class="side-panel">
+            <div class="card">
+              <h3 class="card-title">Ranking de Estados</h3>
+              <div class="ranking-list" id="rankLicensees"></div>
+            </div>
+            <div class="card card-alert">
+              <h3 class="card-title">⚠️ Sem Clientes Cadastrados</h3>
+              <div class="inactive-list" id="inactiveLicensees"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TELA 2: CLIENTES BR -->
+    <div class="tab-content" id="tab-clients">
+      <div class="empty-state" id="emptyClients">
+        <div class="empty-icon">👥</div>
+        <h2>Carregue sua planilha para ver os clientes</h2>
+      </div>
+      <div id="dashClients" style="display:none">
+        <div class="kpi-row" id="kpiClients"></div>
+        <div class="filter-bar">
+          <span class="filter-label">Status:</span>
+          <div class="filter-pills" id="pillsClients"></div>
+          <span class="filter-label" style="margin-left:16px">Tipo de Linha:</span>
+          <div class="filter-pills" id="pillsPort"></div>
+        </div>
+        <div class="map-section">
+          <div class="map-wrapper">
+            <h2 class="section-title">Clientes por Estado <span class="tip">— clique no estado para detalhar</span></h2>
+            <div class="brazil-map" id="mapClients"></div>
+            <div class="map-legend" id="legendClients"></div>
+          </div>
+          <div class="side-panel">
+            <div class="card">
+              <h3 class="card-title">Ranking de Estados</h3>
+              <div class="ranking-list" id="rankClients"></div>
+            </div>
+            <div class="card">
+              <h3 class="card-title">📊 Ativos vs Cancelados</h3>
+              <div id="statusBreakdown" class="breakdown-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TELA 3: ATUAÇÃO CRUZADA -->
+    <div class="tab-content" id="tab-crossmap">
+      <div class="empty-state" id="emptyCross">
+        <div class="empty-icon">🔀</div>
+        <h2>Atuação Cruzada de Licenciados</h2>
+        <p>Selecione um licenciado para ver em quais estados ele faz mais cadastros.</p>
+      </div>
+      <div id="dashCross" style="display:none">
+        <div class="kpi-row" id="kpiCross"></div>
+        <div class="cross-layout">
+          <div class="card licensee-list-card">
+            <h3 class="card-title">Licenciados</h3>
+            <input type="text" class="search-input" id="crossSearch" placeholder="Buscar licenciado…" style="margin-bottom:10px;width:100%" />
+            <div class="licensee-picker" id="licenseePicker"></div>
+          </div>
+          <div class="map-wrapper cross-map-wrap">
+            <h2 class="section-title" id="crossMapTitle">Selecione um licenciado</h2>
+            <div class="brazil-map" id="mapCross"></div>
+            <div class="map-legend" id="legendCross"></div>
+          </div>
+          <div class="side-panel">
+            <div class="card" id="crossOriginCard" style="display:none">
+              <h3 class="card-title">📍 Estado de Origem</h3>
+              <div id="crossOriginInfo"></div>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Onde mais atua</h3>
+              <div class="ranking-list" id="rankCross"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TELA 4: EUA -->
+    <div class="tab-content" id="tab-usa">
+      <div class="empty-state" id="emptyUSA">
+        <div class="empty-icon">🇺🇸</div>
+        <h2>Distribuição nos Estados Unidos</h2>
+        <p>Licenciados com <strong>Origem = EUA</strong> e seus clientes.</p>
+      </div>
+      <div id="dashUSA" style="display:none">
+        <div class="kpi-row" id="kpiUSA"></div>
+        <div class="map-section">
+          <div class="map-wrapper">
+            <h2 class="section-title">Licenciados nos EUA <span class="tip">— clique para detalhar</span></h2>
+            <div class="usa-map" id="mapUSA"></div>
+            <div class="map-legend" id="legendUSA"></div>
+          </div>
+          <div class="side-panel">
+            <div class="card">
+              <h3 class="card-title">Ranking por Estado</h3>
+              <div class="ranking-list" id="rankUSA"></div>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Tipos de Licença</h3>
+              <div id="usaBreakdown" class="breakdown-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- TELA 5: LICENCIADOS EUA -->
+    <div class="tab-content" id="tab-usalic">
+      <div class="empty-state" id="emptyUSALic">
+        <div class="empty-icon">🇺🇸</div>
+        <h2>Licenciados nos Estados Unidos</h2>
+        <p>Licenciados com <strong>Origem</strong> preenchida na aba licenciados.</p>
+      </div>
+      <div id="dashUSALic" style="display:none">
+        <div class="kpi-row" id="kpiUSALic"></div>
+        <div class="filter-bar">
+          <span class="filter-label">Licença:</span>
+          <div class="filter-pills" id="pillsUSALic"></div>
+          <span class="filter-label" style="margin-left:16px">Status:</span>
+          <div class="filter-pills" id="pillsStatusUSALic"></div>
+        </div>
+        <div class="map-section">
+          <div class="map-wrapper">
+            <h2 class="section-title">Licenciados EUA por Estado <span class="tip">— clique para detalhar</span></h2>
+            <div class="usa-map" id="mapUSALic"></div>
+            <div class="map-legend" id="legendUSALic"></div>
+          </div>
+          <div class="side-panel">
+            <div class="card">
+              <h3 class="card-title">Ranking por Estado</h3>
+              <div class="ranking-list" id="rankUSALic"></div>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Tipos de Licença</h3>
+              <div id="usaLicBreakdown" class="breakdown-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modalOverlay" style="display:none">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle"></h2>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+      <div class="modal-kpis" id="modalKpis"></div>
+      <input type="text" class="search-input" id="modalSearch" placeholder="Buscar…" style="margin:0 0 14px;width:100%" />
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="tooltip" id="tooltip" style="display:none"></div>
+  <script src="app.js"></script>
+</body>
+</html>
