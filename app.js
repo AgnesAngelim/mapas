@@ -646,7 +646,6 @@ function initLicensees() {
     { val:'all', label:'Todos', cls:'pill-all' },
     { val:'telecom', label:'Telecom', cls:'pill-telecom' },
     { val:'expert',  label:'Expert + Telecom', cls:'pill-expert' },
-    { val:'expansao',label:'Expansão USA', cls:'pill-expansao' },
   ], v => { F.L.license = v; renderLicensees(); });
 
   makePills('pillsStatusL', [
